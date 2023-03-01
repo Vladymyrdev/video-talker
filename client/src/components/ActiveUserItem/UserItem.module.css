@@ -1,0 +1,16 @@
+.container {
+	width: 100%;
+	display: flex;
+	margin: 10px;
+	align-items: center;
+	gap: 15px;
+	color: #fff;
+	cursor: pointer;
+	padding: 5px 10px;
+	transition: all 0.2s ease-in-out;
+}
+
+.container:hover {
+	background-color: rgb(217, 122, 255);
+	color: #000;
+}

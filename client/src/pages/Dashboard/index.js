@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import ActiveUserList from '../../components/ActiveUserList';
+import DirectCall from '../../components/DirectCall';
 import * as webRTCHandler from '../../utils/webRTC/webRTCHandler';
 import styles from './Dashboard.module.css';
 
@@ -11,7 +12,9 @@ function Dashboard() {
   return (
     <div className={styles.container}>
       <div className={styles.flexbox}>
-        <div className={styles.main}>Main</div>
+        <div className={styles.main}>
+          <DirectCall />
+        </div>
         <div className={styles.left}>
           <ActiveUserList />
         </div>

@@ -1,44 +1,77 @@
 import socketClient from 'socket.io-client';
 import store from '../../store/store';
 import * as dashboardActions from '../../store/actions/dashboardActions';
+import * as webRTCHandler from '../webRTC/webRTCHandler';
 
 const API_URL = 'http://localhost:5000';
 
 const broadcastEventTypes = {
-	ACTIVE_USERS: 'ACTIVE_USERS',
-	GROUP_CALL_ROOMS: 'GROUP_CALL_ROOMS',
+  ACTIVE_USERS: 'ACTIVE_USERS',
+  GROUP_CALL_ROOMS: 'GROUP_CALL_ROOMS',
 };
 
 let socket;
 
 export const connectWithWebSocket = () => {
-	socket = socketClient(API_URL);
+  socket = socketClient(API_URL);
 
-	socket.on('connection', () => {
-		console.log(socket.id);
-	});
+  socket.on('connection', () => {
+    console.log(socket.id);
+  });
 
-	socket.on('broadcast', (data) => {
-		handleBroadcastEvent(data);
-	});
+  socket.on('broadcast', (data) => {
+    handleBroadcastEvent(data);
+  });
+
+  // listeners related with direct call
+  socket.on('pre-offer', (data) => {
+    webRTCHandler.handlePreOffer(data);
+  });
+
+  socket.on('pre-offer-answer', (data) => {
+    webRTCHandler.handlePreOfferAnswer(data);
+  });
+
+  socket.on('webRTC-offer', (data) => {
+    webRTCHandler.handleOffer(data);
+  });
+
+  socket.on('webRTC-answer', (data) => {
+    webRTCHandler.handleAnswer(data);
+  });
 };
 
 export const registerNewUser = (username) => {
-	socket.emit('register-new-user', {
-		username,
-		socketId: socket.id,
-	});
+  socket.emit('register-new-user', {
+    username,
+    socketId: socket.id,
+  });
+};
+
+// emitting events to server related with direct call
+export const sendPreOffer = (data) => {
+  socket.emit('pre-offer', data);
+};
+
+export const sendPreOfferAnswer = (data) => {
+  socket.emit('pre-offer-answer', data);
+};
+
+export const sendWebRTCOffer = (data) => {
+  socket.emit('webRTC-offer', data);
+};
+
+export const sendWebRTCAnswer = (data) => {
+  socket.emit('webRTC-answer', data);
 };
 
 const handleBroadcastEvent = (data) => {
-	switch (data.event) {
-		case broadcastEventTypes.ACTIVE_USERS:
-			const activeUsers = data.activeUsers.filter(
-				(user) => user.socketId !== socket.id
-			);
-			store.dispatch(dashboardActions.setActiveUsers(activeUsers));
-			break;
-		default:
-			break;
-	}
+  switch (data.event) {
+    case broadcastEventTypes.ACTIVE_USERS:
+      const activeUsers = data.activeUsers.filter((user) => user.socketId !== socket.id);
+      store.dispatch(dashboardActions.setActiveUsers(activeUsers));
+      break;
+    default:
+      break;
+  }
 };
